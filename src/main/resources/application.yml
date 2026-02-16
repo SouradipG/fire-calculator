@@ -1,0 +1,49 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: fire-calculator
+
+  graphql:
+    graphiql:
+      enabled: true
+    path: /graphql
+    schema:
+      locations: classpath:graphql/
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Groq API Configuration
+#
+# HOW TO GET FREE KEY (no credit card required):
+#   1. Go to https://console.groq.com
+#   2. Sign up with Google / GitHub / email
+#   3. API Keys -> Create API Key  (starts with gsk_...)
+#   4. Set the environment variable before running:
+#
+#      Windows CMD:        set GROQ_API_KEY=gsk_xxxx
+#      Windows PowerShell: $env:GROQ_API_KEY="gsk_xxxx"
+#      Linux / Mac:        export GROQ_API_KEY=gsk_xxxx
+#
+# Free tier limits: 14,400 req/day | 500,000 tokens/day
+# ─────────────────────────────────────────────────────────────────────────────
+groq:
+  api:
+    key: ${GROQ_API_KEY:your-groq-api-key-here}
+    base-url: https://api.groq.com/openai/v1
+    model: llama-3.3-70b-versatile
+
+# ─────────────────────────────────────────────────────────────────────────────
+# FIRE Calculator Business Defaults
+# ─────────────────────────────────────────────────────────────────────────────
+fire:
+  calculator:
+    default-withdrawal-rate: 0.04
+    default-inflation-rate: 0.06
+    default-return-rate: 0.12
+    ai:
+      system-prompt-context: "You are a certified financial planner specializing in FIRE (Financial Independence, Retire Early) planning for Indian investors. Provide accurate, personalized, and actionable financial advice based on the given data. Always include Indian-context specifics like PPF, NPS, EPF, mutual funds, and tax implications under Indian tax law."
+
+logging:
+  level:
+    com.fire: DEBUG

@@ -1,0 +1,264 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# FIRE Calculator — GraphQL Schema
+# Problem Statement 1: Calculate FIRE number based on income, existing corpus, goal
+# ─────────────────────────────────────────────────────────────────────────────
+
+type Query {
+    """
+    Calculate the FIRE number and retirement readiness assessment.
+    Returns deterministic financial projections enriched with AI-generated insights.
+    """
+    calculateFire(input: FireInputDTO!): FireResultDTO!
+
+    """
+    Get a quick FIRE readiness check without full AI analysis.
+    Useful for lightweight UI calls or caching.
+    """
+    quickFireCheck(input: FireInputDTO!): FireSummaryDTO!
+}
+
+# ─────────────────────────────────────────────────────────────────────────────
+# INPUT TYPES
+# ─────────────────────────────────────────────────────────────────────────────
+
+input FireInputDTO {
+    "Full name of the person (used for personalized AI response)"
+    name: String!
+
+    "Current age in years"
+    currentAge: Int!
+
+    "Desired retirement age"
+    targetRetirementAge: Int!
+
+    "Annual income (in INR or chosen currency)"
+    annualIncome: Float!
+
+    "Annual expenses (in INR). Used to calculate savings rate and corpus need."
+    annualExpenses: Float!
+
+    "Existing investment corpus / net worth already accumulated (in INR)"
+    existingCorpus: Float!
+
+    "Monthly savings / SIP being invested currently (in INR)"
+    monthlySavings: Float!
+
+    "Expected annual portfolio return rate (0.0–1.0). Defaults to 12% if null."
+    expectedReturnRate: Float
+
+    "Expected annual inflation rate (0.0–1.0). Defaults to 6% if null."
+    inflationRate: Float
+
+    "Safe withdrawal rate at retirement (0.0–1.0). Defaults to 4% (Trinity Study)."
+    withdrawalRate: Float
+
+    "Currency label for display (e.g. INR, USD). Default: INR"
+    currency: String
+
+    "Optional goal description (e.g. 'retire comfortably in Goa with kids in college')"
+    retirementGoal: String
+
+    "Optional list of goal-specific annual expenses (e.g. travel, healthcare)"
+    additionalExpenses: [AdditionalExpenseDTO]
+
+    "Risk profile of the investor"
+    riskProfile: RiskProfile
+
+    "Whether the user wants detailed AI narration (true) or short summary (false)"
+    detailedAnalysis: Boolean
+}
+
+input AdditionalExpenseDTO {
+    "Label for the expense category"
+    label: String!
+
+    "Annual amount for this expense category (in INR)"
+    annualAmount: Float!
+}
+
+enum RiskProfile {
+    CONSERVATIVE
+    MODERATE
+    AGGRESSIVE
+}
+
+# ─────────────────────────────────────────────────────────────────────────────
+# OUTPUT TYPES
+# ─────────────────────────────────────────────────────────────────────────────
+
+type FireResultDTO {
+    "Name of the person"
+    name: String!
+
+    "The calculated FIRE number — total corpus needed to retire"
+    fireNumber: Float!
+
+    "FIRE number formatted as a human-readable string (e.g. ₹2.5 Crore)"
+    fireNumberFormatted: String!
+
+    "Current corpus shortfall (fireNumber - existingCorpus)"
+    corpusShortfall: Float!
+
+    "Projected corpus at retirement based on current savings and return assumptions"
+    projectedCorpusAtRetirement: Float!
+
+    "Whether the user is on track to achieve FIRE by the target retirement age"
+    isOnTrack: Boolean!
+
+    "Years remaining to retirement"
+    yearsToRetirement: Int!
+
+    "Projected year of FIRE achievement if savings rate is maintained"
+    projectedFireYear: Int
+
+    "How many years earlier/later than target retirement the FIRE date falls"
+    fireYearDelta: Int
+
+    "The savings rate as a percentage of annual income"
+    savingsRate: Float!
+
+    "Required monthly SIP to reach FIRE by target retirement age"
+    requiredMonthlySip: Float!
+
+    "Current monthly SIP surplus/deficit vs required"
+    monthlySipDelta: Float!
+
+    "Inflation-adjusted corpus needed at retirement"
+    inflationAdjustedFireNumber: Float!
+
+    "Annual withdrawal amount available at retirement under safe withdrawal rate"
+    annualWithdrawalAtRetirement: Float!
+
+    "Detailed year-by-year corpus projection"
+    projectionTimeline: [ProjectionYearDTO!]!
+
+    "Breakdown by income and expense buckets"
+    financialSnapshot: FinancialSnapshotDTO!
+
+    "AI-generated comprehensive analysis and actionable recommendations"
+    aiInsights: AiInsightsDTO!
+
+    "Metadata about this calculation"
+    meta: CalculationMetaDTO!
+}
+
+type FireSummaryDTO {
+    "The calculated FIRE number"
+    fireNumber: Float!
+
+    "Whether the user is on track"
+    isOnTrack: Boolean!
+
+    "Years to retirement"
+    yearsToRetirement: Int!
+
+    "Required monthly SIP"
+    requiredMonthlySip: Float!
+
+    "Simple status label"
+    status: FireStatus!
+
+    "One-line summary"
+    summary: String!
+}
+
+type ProjectionYearDTO {
+    "Year (calendar year)"
+    year: Int!
+
+    "Age of the person in this year"
+    age: Int!
+
+    "Corpus at the start of the year"
+    corpusStart: Float!
+
+    "Investment returns earned in this year"
+    returnsEarned: Float!
+
+    "Total savings contributed in this year"
+    savingsContributed: Float!
+
+    "Corpus at the end of the year"
+    corpusEnd: Float!
+
+    "FIRE number target for this year (inflation-adjusted)"
+    fireTarget: Float!
+
+    "Percentage of FIRE target achieved"
+    percentageAchieved: Float!
+}
+
+type FinancialSnapshotDTO {
+    "Annual income"
+    annualIncome: Float!
+
+    "Annual expenses"
+    annualExpenses: Float!
+
+    "Annual savings"
+    annualSavings: Float!
+
+    "Savings rate as percentage"
+    savingsRatePercent: Float!
+
+    "Current corpus"
+    existingCorpus: Float!
+
+    "Monthly savings"
+    monthlySavings: Float!
+
+    "Expected annual return rate as percentage"
+    expectedReturnRatePercent: Float!
+
+    "Inflation rate as percentage"
+    inflationRatePercent: Float!
+
+    "Withdrawal rate as percentage"
+    withdrawalRatePercent: Float!
+}
+
+type AiInsightsDTO {
+    "AI-generated executive summary of the FIRE analysis"
+    executiveSummary: String!
+
+    "Detailed narrative assessment from AI"
+    detailedAnalysis: String!
+
+    "Specific, numbered action items recommended by AI"
+    actionItems: [String!]!
+
+    "Investment strategy recommendations"
+    investmentStrategy: String!
+
+    "Risk factors and warnings"
+    riskFactors: [String!]!
+
+    "Motivational message / FIRE philosophy insight"
+    motivationalNote: String!
+
+    "AI model used for this analysis"
+    modelUsed: String!
+}
+
+type CalculationMetaDTO {
+    "Timestamp of calculation"
+    calculatedAt: String!
+
+    "Assumptions used in the calculation"
+    assumptions: AssumptionsDTO!
+}
+
+type AssumptionsDTO {
+    withdrawalRate: Float!
+    inflationRate: Float!
+    expectedReturnRate: Float!
+    currency: String!
+}
+
+enum FireStatus {
+    ON_TRACK
+    SLIGHTLY_BEHIND
+    SIGNIFICANTLY_BEHIND
+    CRITICAL
+    ALREADY_ACHIEVED
+}
